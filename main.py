@@ -33,7 +33,7 @@ PRE_APP_RANGE_FOR_CALL_LIST = ["Sheet1!A2:O",  # для выгрузки рез�
 
 MY_EMAIL = os.environ.get("MY_EMAIL")
 PASSWORD = os.environ.get("PASSWORD")
-TO_EMAILS = [MY_EMAIL, "pavel.turovich@moneyman.ru"]  # , "nataliya.kovalevskaya@moneyman.ru", "diana.ezhova@moneyman.ru"
+TO_EMAILS = [MY_EMAIL, os.environ.get("pavel"), os.environ.get("nataliya"), os.environ.get("diana")]  #
 
 
 def pdl_new_update(history, history_sheet_id, ranges_for_history, call_list, ranges_for_call_list,

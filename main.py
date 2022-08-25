@@ -33,7 +33,7 @@ PRE_APP_RANGE_FOR_CALL_LIST = ["Sheet1!A2:O",  # для выгрузки рез�
 
 MY_EMAIL = os.environ.get("MY_EMAIL")
 PASSWORD = os.environ.get("PASSWORD")
-TO_EMAILS = [MY_EMAIL, "pavel.turovich@moneyman.ru", "nataliya.kovalevskaya@moneyman.ru", "diana.ezhova@moneyman.ru"]
+TO_EMAILS = [MY_EMAIL, "pavel.turovich@moneyman.ru"]  # , "nataliya.kovalevskaya@moneyman.ru", "diana.ezhova@moneyman.ru"
 
 
 def pdl_new_update(history, history_sheet_id, ranges_for_history, call_list, ranges_for_call_list,
@@ -187,14 +187,13 @@ def il_plus_pre_approved_update(history, ranges_for_history, history_sheet_id, c
     index_cut_list = data_2["valueRanges"][1]["values"].index([last_value]) + 1
     last_called_index = int(len(data_2["valueRanges"][2]["values"]))
     range_body = {"values": data_2["valueRanges"][0]["values"][index_cut_list:last_called_index]}
-    print(range_body)
 
     if not range_body["values"]:
         return [name, "true_1", "no data to copy."]
     else:
         ApiGoogle(history).add_1_row_end(history_sheet_id)
-        # add_new_data = ApiGoogle(history, range_for_writing).update_data(range_body)
-        # return [name, "true_2", add_new_data]
+        add_new_data = ApiGoogle(history, range_for_writing).update_data(range_body)
+        return [name, "true_2", add_new_data]
 
 
 def send_mail(time_start, time_end, my_email, password, to_emails, results):

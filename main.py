@@ -7,7 +7,7 @@ PDL_NEW_HISTORY = os.environ.get("PDL_NEW_HISTORY")  # Исторические 
 PDL_NEW_HISTORY_SHEET_ID = os.environ.get("PDL_NEW_HISTORY_SHEET_ID")  # Q3_22
 PDL_NEW_CALL_LIST_S7D = os.environ.get("PDL_NEW_CALL_LIST_S7D")  # Обзвон отвалившихся S7D
 PDL_NEW_CALL_LIST_S23 = os.environ.get("PDL_NEW_CALL_LIST_S23") # Обзвон отвалившихся S23
-PDL_NEW_RANGES_FOR_HISTORY = ["Q3_22!C1:C", "Q3_22!G1:G"]  # поиск последнего значения исторические данные pdl_new
+PDL_NEW_RANGES_FOR_HISTORY = ["Q3_22!A1:C", "Q3_22!G1:G"]  # поиск последнего значения исторические данные pdl_new
 PDL_NEW_RANGE_FOR_CALL_LIST = ["Лист1!A2:S"]  # для захвата результатов обзвона
 
 PDL_OLD_HISTORY = os.environ.get("PDL_OLD_HISTORY")  # Исторические данные pdl_old

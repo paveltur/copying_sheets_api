@@ -8,19 +8,19 @@ PDL_NEW_HISTORY_SHEET_ID = os.environ.get("PDL_NEW_HISTORY_SHEET_ID")  # Q3_22
 PDL_NEW_CALL_LIST_S7D = os.environ.get("PDL_NEW_CALL_LIST_S7D")  # Обзвон отвалившихся S7D
 PDL_NEW_CALL_LIST_S23 = os.environ.get("PDL_NEW_CALL_LIST_S23") # Обзвон отвалившихся S23
 PDL_NEW_RANGES_FOR_HISTORY = ["Q3_22!A1:C", "Q3_22!G1:G"]  # поиск последнего значения исторические данные pdl_new
-PDL_NEW_RANGE_FOR_CALL_LIST = ["Лист1!A2:S"]  # для захвата результатов обзвона
+PDL_NEW_RANGE_FOR_CALL_LIST = ["Лист1!A2:T"]  # для захвата результатов обзвона
 
 PDL_OLD_HISTORY = os.environ.get("PDL_OLD_HISTORY")  # Исторические данные pdl_old
 PDL_OLD_HISTORY_SHEET_ID = os.environ.get("PDL_OLD_HISTORY_SHEET_ID")  # Q3_22
 PDL_OLD_CALL_LIST = os.environ.get("PDL_OLD_CALL_LIST")  # Обзвон отвалившихся
 PDL_OLD_RANGE_FOR_HISTORY = ["Q3_22!C1:C"]  # для поиска последнего значения исторические данные pdl_old
-PDL_OLD_RANGE_FOR_CALL_LIST = ["PDL c 01.08!A2:M"]  # для выгрузки результатов обзвона
+PDL_OLD_RANGE_FOR_CALL_LIST = ["PDL c 01.08!A2:N"]  # для выгрузки результатов обзвона
 
 IL_HISTORY = os.environ.get("IL_HISTORY")
 IL_HISTORY_SHEET_ID = os.environ.get("IL_HISTORY_SHEET_ID")  # Q3_22
 IL_CALL_LIST = os.environ.get("IL_CALL_LIST")
 IL_RANGE_FOR_HISTORY = ["Q3_22!D1:D"]  # для поиска последнего значения исторические данные IL
-IL_RANGE_FOR_CALL_LIST = ["IL since 01.08.2022!A2:N",  # для выгрузки результатов обзвона, первый в списке
+IL_RANGE_FOR_CALL_LIST = ["IL since 01.08.2022!A2:O",  # для выгрузки результатов обзвона, первый в списке
                           "IL since 01.08.2022!D2:D",
                           "IL since 01.08.2022!I2:I"]
 
@@ -28,7 +28,7 @@ PRE_APP_HISTORY = os.environ.get("PRE_APP_HISTORY")
 PRE_APP_HISTORY_SHEET_ID = os.environ.get("PRE_APP_HISTORY_SHEET_ID")  # Q3_22
 PRE_APP_CALL_LIST = os.environ.get("PRE_APP_CALL_LIST")
 PRE_APP_RANGE_FOR_HISTORY = ["Q3_22!A1:A"]  # для поиска последнего значения исторические данные предодобренные
-PRE_APP_RANGE_FOR_CALL_LIST = ["Sheet1!A2:O",  # для выгрузки результатов обзвона, первый в списке
+PRE_APP_RANGE_FOR_CALL_LIST = ["Sheet1!A2:P",  # для выгрузки результатов обзвона, первый в списке
                                "Sheet1!A2:A",
                                "Sheet1!H2:H"]
 

@@ -8,13 +8,13 @@ PDL_NEW_HISTORY_SHEET_ID = os.environ.get("PDL_NEW_HISTORY_SHEET_ID")  # Q3_22
 PDL_NEW_CALL_LIST_S7D = os.environ.get("PDL_NEW_CALL_LIST_S7D")  # Обзвон отвалившихся S7D
 PDL_NEW_CALL_LIST_S23 = os.environ.get("PDL_NEW_CALL_LIST_S23") # Обзвон отвалившихся S23
 PDL_NEW_RANGES_FOR_HISTORY = ["Q3_22!A1:C", "Q3_22!G1:G"]  # поиск последнего значения исторические данные pdl_new
-PDL_NEW_RANGE_FOR_CALL_LIST = ["Лист1!A2:T"]  # для захвата результатов обзвона
+PDL_NEW_RANGE_FOR_CALL_LIST = ["Лист1!A2:U"]  # для захвата результатов обзвона
 
 PDL_OLD_HISTORY = os.environ.get("PDL_OLD_HISTORY")  # Исторические данные pdl_old
 PDL_OLD_HISTORY_SHEET_ID = os.environ.get("PDL_OLD_HISTORY_SHEET_ID")  # Q3_22
 PDL_OLD_CALL_LIST = os.environ.get("PDL_OLD_CALL_LIST")  # Обзвон отвалившихся
 PDL_OLD_RANGE_FOR_HISTORY = ["Q3_22!C1:C"]  # для поиска последнего значения исторические данные pdl_old
-PDL_OLD_RANGE_FOR_CALL_LIST = ["PDL c 01.08!A2:N"]  # для выгрузки результатов обзвона
+PDL_OLD_RANGE_FOR_CALL_LIST = ["PDL c 01.08!A2:O"]  # для выгрузки результатов обзвона
 
 IL_HISTORY = os.environ.get("IL_HISTORY")
 IL_HISTORY_SHEET_ID = os.environ.get("IL_HISTORY_SHEET_ID")  # Q3_22
@@ -38,7 +38,7 @@ TO_EMAILS = [MY_EMAIL, os.environ.get("pavel"), os.environ.get("nataliya"), os.e
 
 
 def pdl_new_update(history, history_sheet_id, ranges_for_history, call_list_s7d, call_list_s23, ranges_for_call_list,
-                   copy_paste_start_column_index=7, copy_paste_end_column_index=8, days_before_backup_statuses=5):
+                   copy_paste_start_column_index=7, copy_paste_end_column_index=9, days_before_backup_statuses=5):
     """
     запрос в исторические данные для получения последнего скопированного значения, формирования диапазона для записи,
     а также диапазона строк для копирования статусов в столбце H из формулы в значение
@@ -70,7 +70,7 @@ def pdl_new_update(history, history_sheet_id, ranges_for_history, call_list_s7d,
     list_of_rows_s23 = []
     for row in data_3["valueRanges"][0]["values"]:
         try:
-            if row[0] == "step 2-3" and row[12]:
+            if row[0] == "step 2-3" and row[13]:
                 list_of_rows_s23.append(row)
         except IndexError:
             continue
@@ -109,14 +109,14 @@ def pdl_new_update(history, history_sheet_id, ranges_for_history, call_list_s7d,
                             "startRowIndex": copy_start_row_index,
                             "endRowIndex": copy_end_row_index,
                             "startColumnIndex": copy_paste_start_column_index,  # столбец Н, по умолчанию 7
-                            "endColumnIndex": copy_paste_end_column_index  # столбец Н, по умолчанию 8
+                            "endColumnIndex": copy_paste_end_column_index  # столбец Н, по умолчанию 9
                         },
                         "destination": {
                             "sheetId": history_sheet_id,
                             "startRowIndex": copy_end_row_index,  # тянем формулу статусов с последней строки
                             "endRowIndex": (copy_end_row_index + (int(len(range_body["values"])))),  # на весь массив
                             "startColumnIndex": copy_paste_start_column_index,  # столбец Н, по умолчанию 7
-                            "endColumnIndex": copy_paste_end_column_index  # столбец Н, по умолчанию 8
+                            "endColumnIndex": copy_paste_end_column_index  # столбец Н, по умолчанию 9
                         },
                         "pasteType": "PASTE_FORMULA",  # формулу для статусов вставляем как формулу
                         "pasteOrientation": "NORMAL"
@@ -146,14 +146,14 @@ def pdl_new_update(history, history_sheet_id, ranges_for_history, call_list_s7d,
                             "startRowIndex": start_row_for_backup_old_statuses,
                             "endRowIndex": end_row_for_backup_old_statuses,
                             "startColumnIndex": copy_paste_start_column_index,  # столбец Н, по умолчанию 7
-                            "endColumnIndex": copy_paste_end_column_index  # столбец Н, по умолчанию 8
+                            "endColumnIndex": copy_paste_end_column_index  # столбец Н, по умолчанию 9
                         },
                         "destination": {
                             "sheetId": history_sheet_id,
                             "startRowIndex": start_row_for_backup_old_statuses,
                             "endRowIndex": end_row_for_backup_old_statuses,
                             "startColumnIndex": copy_paste_start_column_index,  # столбец Н, по умолчанию 7
-                            "endColumnIndex": copy_paste_end_column_index  # столбец Н, по умолчанию 8
+                            "endColumnIndex": copy_paste_end_column_index  # столбец Н, по умолчанию 9
                         },
                         "pasteType": "PASTE_VALUES",  # вставляем как значения, бэкапим статусы через 5 дней
                         "pasteOrientation": "NORMAL"

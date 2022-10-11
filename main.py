@@ -247,7 +247,7 @@ def send_report(copying_results, list_add_statuses, start_time, end_time, my_ema
 
 
 def main():
-    start_time = dt.datetime.now()
+    start_time = dt.datetime.utcnow()+dt.timedelta(hours=3)
     copying_results = []
     list_add_statuses = []
     for key in phone_calls:
@@ -269,7 +269,7 @@ def main():
     except Exception as exc_3:
         result_backup_st = {"name": "statuses + reson code", "func": "backed up", "result": "false", "info": exc_3}
     copying_results.append(result_backup_st)
-    end_time = dt.datetime.now()
+    end_time = dt.datetime.utcnow()+dt.timedelta(hours=3)
 
     send_report(copying_results, list_add_statuses, start_time, end_time, MY_EMAIL, PASSWORD, TO_EMAILS)
 

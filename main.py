@@ -189,9 +189,25 @@ def backup_statuses(history_data=HISTORY["history_data"],
                 }
             ]
         }
-    ApiGoogle(HISTORY["history_data"]).copy_paste(backup_old_statuses_h_i)
+    ApiGoogle(history_data).copy_paste(backup_old_statuses_h_i)
+
+    list_of_name_phone_calls = [call["name"] for call in phone_calls]
+    calls_info = []
+    data_stat_value = ApiGoogle(history_data, [f"Q4_22!A{start_row+1}:I{end_row}"]).read_data_ranges()
+    for name in list_of_name_phone_calls:
+        if name == "s7d":
+            rows = [row for row in data_stat_value["valueRanges"][0]["values"]
+                    if row[0] == "step 7" or row[0] == "decision"]
+        else:
+            rows = [row for row in data_stat_value["valueRanges"][0]["values"] if row[0] == name]
+        all_rows = len(rows)
+        statuses = len([el[0] for el in rows if len(el)>7])
+        reason_code = len([el[0] for el in rows if len(el)>8])
+        calls_info.append({f"{name}": {"all_rows": all_rows, "statuses": statuses, "reason_code": reason_code}})
+
     return {"name": "statuses + reson code", "func": "backed up", "result": "true",
-            "info": {"date_for_backup": date_backup_statuses, "from_cell": f"H{start_row+1}", "to_cell": f"I{end_row}"}}
+            "info": {"date_for_backup": date_backup_statuses, "from_cell": f"H{start_row+1}", "to_cell": f"I{end_row}",
+                     "detail_info": calls_info}}
 
 
 def send_report(copying_results, list_add_statuses, start_time, end_time, my_email, password, to_emails):

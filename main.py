@@ -29,7 +29,6 @@ def copying_main_data(name,
                       history_sheet_id=HISTORY["history_sheet_id"],
                       history_range_read=HISTORY["history_range_read"]):
 
-
     num_rows = len(ApiGoogle(call_list, f"{name}!{range_cd}").read_data_ranges()["valueRanges"][0]["values"])
     if name == "pdl_old" or name == "il":
         ApiGoogle(call_list, f"{name}!{range_a}").update_data({"values": [[f'{name}']]*num_rows})
@@ -44,7 +43,7 @@ def copying_main_data(name,
 
     if name == "s7d":
         check_column = 2
-        list_of_rows=[]
+        list_of_rows = []
         for row in data_2["valueRanges"][0]["values"]:
             try:
                 if row[0] == "step 7" or row[0] == "decision":
@@ -201,8 +200,8 @@ def backup_statuses(history_data=HISTORY["history_data"],
         else:
             rows = [row for row in data_stat_value["valueRanges"][0]["values"] if row[0] == name]
         all_rows = len(rows)
-        statuses = len([el[0] for el in rows if len(el)>7])
-        reason_code = len([el[0] for el in rows if len(el)>8])
+        statuses = len([el[0] for el in rows if len(el) > 7])
+        reason_code = len([el[0] for el in rows if len(el) > 8])
         calls_info.append({f"{name}": {"all_rows": all_rows, "statuses": statuses, "reason_code": reason_code}})
 
     return {"name": "statuses + reson code", "func": "backed up", "result": "true",

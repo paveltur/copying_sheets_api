@@ -13,7 +13,7 @@ HISTORY = creds_sheets["HISTORY"]
 column_a = "A2:A"
 column_cd = "C2:D"
 column_m = "M2:M"
-columns_for_date = ["Q4_22!G2:G", "10_22_s23!G2:G"]
+columns_for_date = ["Q4_22!G2:G"]
 range_for_copy = "A2:U"
 MY_EMAIL = creds_sheets["mail_creds"]["MY_EMAIL"]
 PASSWORD = creds_sheets["mail_creds"]["PASSWORD"]
@@ -28,14 +28,6 @@ def copying_main_data(name,
                       history_data=HISTORY["history_data"],
                       history_sheet_id=HISTORY["history_sheet_id"],
                       history_range_read=HISTORY["history_range_read"]):
-    if name == "step 2-3":
-        history_data = history_data[1]
-        history_sheet_id = history_sheet_id[1]
-        history_range_read = history_range_read[1]
-    else:
-        history_data = history_data[0]
-        history_sheet_id = history_sheet_id[0]
-        history_range_read = history_range_read[0]
 
     num_rows = len(ApiGoogle(call_list, f"{name}!{range_cd}").read_data_ranges()["valueRanges"][0]["values"])
     if name == "pdl_old" or name == "il":
@@ -68,7 +60,7 @@ def copying_main_data(name,
         list_of_rows = []
         for row in data_2["valueRanges"][0]["values"]:
             try:
-                if row[0] == "step 2-3":
+                if row[0] == "step 2-3" and row[12]:
                     list_of_rows.append(row)
             except IndexError:
                 continue
@@ -106,10 +98,7 @@ def copying_main_data(name,
     except KeyError:
         last_row_history_list = 2
 
-    if name == "step 2-3":
-        range_for_writing = f"10_22_s23!A{last_row_history_list}:U"
-    else:
-        range_for_writing = f"Q4_22!A{last_row_history_list}:U"
+    range_for_writing = f"Q4_22!A{last_row_history_list}:U"
 
     if not range_body["values"]:
         return {"name": name, "func": "copied", "result": "true_2", "info": "no data to copy"}
@@ -120,12 +109,6 @@ def copying_main_data(name,
 
 
 def add_statuses_as_formula(data: dict, history_data=HISTORY["history_data"]):
-
-    if data["name"] == "step 2-3":
-        history_data = history_data[1]
-    else:
-        history_data = history_data[0]
-
     nums_cells = []
     list_cells = data["info"]["updatedRange"].split("!")[1].split(":")
     for el in list_cells:
@@ -142,16 +125,10 @@ def add_statuses_as_formula(data: dict, history_data=HISTORY["history_data"]):
             formulas_h_column.append([f'=ЕСЛИОШИБКА(ВПР(D{num_row};draft_auto!$E:$G;2;0);"")'])
             formulas_i_column.append([f'=ЕСЛИОШИБКА(ВПР(D{num_row};draft_auto!$E:$G;3;0);"")'])
 
-    if data["name"] == "step 2-3":
-        info_for_writing = [{"range_for_writing": f"10_22_s23!H{nums_cells[0]}:H{nums_cells[1]}",
-                             "body": {"values": formulas_h_column}},
-                            {"range_for_writing": f"10_22_s23!I{nums_cells[0]}:I{nums_cells[1]}",
-                             "body": {"values": formulas_i_column}}]
-    else:
-        info_for_writing = [{"range_for_writing": f"Q4_22!H{nums_cells[0]}:H{nums_cells[1]}",
-                             "body": {"values": formulas_h_column}},
-                            {"range_for_writing": f"Q4_22!I{nums_cells[0]}:I{nums_cells[1]}",
-                             "body": {"values": formulas_i_column}}]
+    info_for_writing = [{"range_for_writing": f"Q4_22!H{nums_cells[0]}:H{nums_cells[1]}",
+                         "body": {"values": formulas_h_column}},
+                        {"range_for_writing": f"Q4_22!I{nums_cells[0]}:I{nums_cells[1]}",
+                         "body": {"values": formulas_i_column}}]
     result = []
     for column in info_for_writing:
         statuses_results = ApiGoogle(history_data, column["range_for_writing"]).update_data(column["body"])
@@ -169,79 +146,67 @@ def backup_statuses(history_data=HISTORY["history_data"],
     hours_for_backup = (days_before_backup_statuses * 24) + 12
     hours_for_end_row = ((days_before_backup_statuses - 1) * 24) + 12
     date_backup_statuses = (dt.datetime.now() - dt.timedelta(hours=hours_for_backup)).strftime("%Y-%m-%d")
-
-    list_of_ranges = []
-    for i in range(0, 2):
-        data_3 = ApiGoogle(history_data[i], columns_for_date[i]).read_data_ranges()
-        list_of_dates = []
-        for row in data_3["valueRanges"][0]["values"]:
-            if not row:
-                list_of_dates.append(row)
-            else:
-                list_of_dates.append(row[0].split(" ")[0])
-
-        for row in enumerate(list_of_dates):
-            if row[1] == date_backup_statuses:
-                start_row = row[0] + 1
-                break
-
-        for row in enumerate(list_of_dates):
-            if row[1] == (dt.datetime.now() - dt.timedelta(hours=hours_for_end_row)).strftime("%Y-%m-%d"):
-                end_row = row[0] + 1
-                break
-
-        backup_old_statuses_h_i = {
-                "requests": [
-                    {
-                        "copyPaste": {
-                            "source": {
-                                "sheetId": history_sheet_id[i],
-                                "startRowIndex": start_row,
-                                "endRowIndex": end_row,
-                                "startColumnIndex": 7,  # столбец Н, по умолчанию 7
-                                "endColumnIndex": 9  # столбец I, по умолчанию 9
-                            },
-                            "destination": {
-                                "sheetId": history_sheet_id[i],
-                                "startRowIndex": start_row,
-                                "endRowIndex": end_row,
-                                "startColumnIndex": 7,  # столбец Н, по умолчанию 7
-                                "endColumnIndex": 9  # столбец I, по умолчанию 9
-                            },
-                            "pasteType": "PASTE_VALUES",  # вставляем как значения, бэкапим статусы через 5 дней
-                            "pasteOrientation": "NORMAL"
-                        }
-                    }
-                ]
-            }
-
-        if i == 0:
-            list_of_ranges.append(f"Q4_22!A{start_row+1}:I{end_row}")
+    data_3 = ApiGoogle(history_data, columns_for_date).read_data_ranges()
+    list_of_dates = []
+    for row in data_3["valueRanges"][0]["values"]:
+        if not row:
+            list_of_dates.append(row)
         else:
-            list_of_ranges.append(f"10_22_s23!A{start_row+1}:I{end_row}")
-        ApiGoogle(history_data[i]).copy_paste(backup_old_statuses_h_i)
+            list_of_dates.append(row[0].split(" ")[0])
+
+    for row in enumerate(list_of_dates):
+        if row[1] == date_backup_statuses:
+            start_row = row[0] + 1
+            break
+
+    for row in enumerate(list_of_dates):
+        if row[1] == (dt.datetime.now() - dt.timedelta(hours=hours_for_end_row)).strftime("%Y-%m-%d"):
+            end_row = row[0] + 1
+            break
+
+    backup_old_statuses_h_i = {
+            "requests": [
+                {
+                    "copyPaste": {
+                        "source": {
+                            "sheetId": history_sheet_id,
+                            "startRowIndex": start_row,
+                            "endRowIndex": end_row,
+                            "startColumnIndex": 7,  # столбец Н, по умолчанию 7
+                            "endColumnIndex": 9  # столбец I, по умолчанию 9
+                        },
+                        "destination": {
+                            "sheetId": history_sheet_id,
+                            "startRowIndex": start_row,
+                            "endRowIndex": end_row,
+                            "startColumnIndex": 7,  # столбец Н, по умолчанию 7
+                            "endColumnIndex": 9  # столбец I, по умолчанию 9
+                        },
+                        "pasteType": "PASTE_VALUES",  # вставляем как значения, бэкапим статусы через 5 дней
+                        "pasteOrientation": "NORMAL"
+                    }
+                }
+            ]
+        }
+    ApiGoogle(history_data).copy_paste(backup_old_statuses_h_i)
 
     list_of_name_phone_calls = [call["name"] for call in phone_calls]
-
-    check_backup_list = []
-    for ranges in enumerate(list_of_ranges):
-        data_stat_value = ApiGoogle(history_data[ranges[0]], [ranges[1]]).read_data_ranges()["valueRanges"][0]["values"]
-        check_backup_list += data_stat_value
-
     calls_info = []
+    data_stat_value = ApiGoogle(history_data, [f"Q4_22!A{start_row+1}:I{end_row}"]).read_data_ranges()
     for name in list_of_name_phone_calls:
         if name == "s7d":
-            rows = [row for row in check_backup_list
+            rows = [row for row in data_stat_value["valueRanges"][0]["values"]
                     if row[0] == "step 7" or row[0] == "decision"]
         else:
-            rows = [row for row in check_backup_list if row[0] == name]
+            rows = [row for row in data_stat_value["valueRanges"][0]["values"] if row[0] == name]
         all_rows = len(rows)
         statuses = len([el[0] for el in rows if len(el) > 7])
         reason_code = len([el[0] for el in rows if len(el) > 8])
         calls_info.append({f"{name}": {"all_rows": all_rows, "statuses": statuses, "reason_code": reason_code}})
 
     return {"name": "statuses + reson code", "func": "backed up", "result": "true",
-            "info": {"date_for_backup": date_backup_statuses, "detail_info": calls_info}}
+            "info": {"date_for_backup": date_backup_statuses, "from_cell": f"H{start_row+1}", "to_cell": f"I{end_row}",
+                     "detail_info": calls_info}}
 
 
 def send_report(copying_results, list_add_statuses, start_time, end_time, my_email, password, to_emails):

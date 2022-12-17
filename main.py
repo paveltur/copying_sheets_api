@@ -9,6 +9,7 @@ columns_cd = "C2:D"
 column_m = "M2:M"
 date_column = "G2:G"
 range_for_copy = "A2:U"
+range_for_copy_abandoned = "A2:AB"
 DAYS = 5
 
 with open("creds_sheets.json", "r") as f:
@@ -25,6 +26,10 @@ def copying_main_data(name: str,
                       history_data: str,
                       history_sheet_id: str,
                       history_sheet_name: str):
+    global range_for_copy
+    if name == "abandoned":
+        range_for_copy = range_for_copy_abandoned
+
     num_rows = len(ApiGoogle(call_list, f"{name}!{columns_cd}").read_data_ranges()["valueRanges"][0]["values"])
     # получаем количество строк на листе обзвона
     if name == "pdl_old" or name == "il":
@@ -79,6 +84,14 @@ def copying_main_data(name: str,
         except IndexError:
             last_hist_value = None
 
+    elif name == "abandoned":
+        check_column = 1
+        list_of_rows = data_2["valueRanges"][0]["values"]
+        try:
+            last_hist_value = list_for_last_hist_values[-1]
+        except KeyError:
+            last_hist_value = None
+
     else:
         check_column = 3
         list_of_rows = [row for row in data_2["valueRanges"][0]["values"] if row[0] == f"{name}"]
@@ -108,7 +121,7 @@ def copying_main_data(name: str,
     except KeyError:
         last_row_history_list = 2
 
-    range_for_writing = f"{history_sheet_name}!A{last_row_history_list}:U"
+    range_for_writing = f"{history_sheet_name}!A{last_row_history_list}:{range_for_copy.split(':')[-1]}"
     if not range_body["values"]:
         return {"name": name, "func": "copied", "result": "true_2", "info": "no data to copy"}
     else:
@@ -152,7 +165,7 @@ def check_backup_statuses(history_data, history_sheet_name, start_row, end_row, 
     data_stat_value = ApiGoogle(history_data, [f"{history_sheet_name}!A{start_row + 1}:I{end_row}"]).read_data_ranges()
     calls_info = []
     if history_sheet_name == "Q4_22":
-        list_of_name_phone_calls = [call["name"] for call in CALLS]
+        list_of_name_phone_calls = [call["name"] for call in CALLS][:-1]
         for name in list_of_name_phone_calls:
             if name == "s7d":
                 rows = [row for row in data_stat_value["valueRanges"][0]["values"]
@@ -283,11 +296,15 @@ def main():
 
     for call in CALLS:
         try:
+            x = 0
+            if call["name"] == "abandoned":
+                x = 2
+
             result_copying = copying_main_data(name=call["name"],
                                                call_list=call["call_list"],
-                                               history_data=HISTORY["history_data"][0],
-                                               history_sheet_id=HISTORY["history_sheet_id"][0],
-                                               history_sheet_name=HISTORY["history_sheet_name"][0])
+                                               history_data=HISTORY["history_data"][x],
+                                               history_sheet_id=HISTORY["history_sheet_id"][x],
+                                               history_sheet_name=HISTORY["history_sheet_name"][x])
         except Exception as exc_1:
             result_copying = {"name": call["name"], "func": "copied", "result": "false", "info": exc_1}
         list_copying_results.append(result_copying)
@@ -304,7 +321,7 @@ def main():
             list_copying_results.append(result_copying_2)
 
     for result in list_copying_results:
-        if result["result"] == "true" and result["func"] == "copied":
+        if result["result"] == "true" and result["func"] == "copied" and result["name"] != "abandoned":
             try:
                 result_add_status = add_statuses_as_formula(result)
             except Exception as exc_2:

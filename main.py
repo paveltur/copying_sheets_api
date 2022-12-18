@@ -85,7 +85,7 @@ def copying_main_data(name: str,
             last_hist_value = None
 
     elif name == "abandoned":
-        check_column = 1
+        check_column = 0
         list_of_rows = data_2["valueRanges"][0]["values"]
         try:
             last_hist_value = list_for_last_hist_values[-1]

@@ -8,6 +8,7 @@ columns_ad = "A2:D"
 columns_cd = "C2:D"
 column_m = "M2:M"
 date_column = "G2:G"
+date_column_abandoned = "O2:O"
 range_for_copy = "A2:U"
 range_for_copy_abandoned = "A2:AB"
 DAYS = 5
@@ -139,12 +140,11 @@ def add_statuses_as_formula(data: dict):
         nums_cells.append(int(new_el))
     formulas_h_column = []
     formulas_i_column = []
-    if data["name"] == "s7d" or data["name"] == "step 2-3":
-        for num_row in range(nums_cells[0], nums_cells[1] + 1):
+    for num_row in range(nums_cells[0], nums_cells[1] + 1):
+        if data["name"] == "s7d" or data["name"] == "step 2-3" or data["name"] == "abandoned":
             formulas_h_column.append([f'=ЕСЛИОШИБКА(ВПР(C{num_row};draft_auto!$A:$C;2;0);"")'])
             formulas_i_column.append([f'=ЕСЛИОШИБКА(ВПР(C{num_row};draft_auto!$A:$C;3;0);"")'])
-    else:
-        for num_row in range(nums_cells[0], nums_cells[1] + 1):
+        else:
             formulas_h_column.append([f'=ЕСЛИОШИБКА(ВПР(D{num_row};draft_auto!$E:$G;2;0);"")'])
             formulas_i_column.append([f'=ЕСЛИОШИБКА(ВПР(D{num_row};draft_auto!$E:$G;3;0);"")'])
 
@@ -162,9 +162,11 @@ def add_statuses_as_formula(data: dict):
 
 
 def check_backup_statuses(history_data, history_sheet_name, start_row, end_row, date_backup_statuses):
-    data_stat_value = ApiGoogle(history_data, [f"{history_sheet_name}!A{start_row + 1}:I{end_row}"]).read_data_ranges()
+
     calls_info = []
     if history_sheet_name == "Q4_22":
+        data_stat_value = ApiGoogle(history_data,
+                                    [f"{history_sheet_name}!A{start_row + 1}:I{end_row}"]).read_data_ranges()
         list_of_name_phone_calls = [call["name"] for call in CALLS][:-1]
         for name in list_of_name_phone_calls:
             if name == "s7d":
@@ -176,7 +178,18 @@ def check_backup_statuses(history_data, history_sheet_name, start_row, end_row, 
             statuses = len([el[0] for el in rows if len(el) > 7])
             reason_code = len([el[0] for el in rows if len(el) > 8])
             calls_info.append({f"{name}": {"all_rows": all_rows, "statuses": statuses, "reason_code": reason_code}})
+    elif history_sheet_name == "A_sess":
+        data_stat_value = ApiGoogle(history_data,
+                                    [f"{history_sheet_name}!A{start_row + 1}:K{end_row}"]).read_data_ranges()
+        name = "abandoned"
+        rows = [row for row in data_stat_value["valueRanges"][0]["values"] if row[0]]
+        all_rows = len(rows)
+        statuses = len([el[0] for el in rows if len(el) > 9])
+        reason_code = len([el[0] for el in rows if len(el) > 10])
+        calls_info.append({f"{name}": {"all_rows": all_rows, "statuses": statuses, "reason_code": reason_code}})
     else:
+        data_stat_value = ApiGoogle(history_data,
+                                    [f"{history_sheet_name}!A{start_row + 1}:I{end_row}"]).read_data_ranges()
         name = "step 2-3"
         rows = [row for row in data_stat_value["valueRanges"][0]["values"] if row[0] == name]
         all_rows = len(rows)
@@ -195,6 +208,9 @@ def backup_statuses(history_data,
     hours_for_backup = (days_before_backup_statuses * 24) + 12
     hours_for_end_row = ((days_before_backup_statuses - 1) * 24) + 12
     date_backup_statuses = (dt.datetime.now() - dt.timedelta(hours=hours_for_backup)).strftime("%Y-%m-%d")
+    global date_column
+    if history_sheet_name == "A_sess":
+        date_column = date_column_abandoned
     data_3 = ApiGoogle(history_data, [f"{history_sheet_name}!{date_column}"]).read_data_ranges()
     list_of_dates = []
     for row in data_3["valueRanges"][0]["values"]:
@@ -215,6 +231,12 @@ def backup_statuses(history_data,
             end_row = row[0] + 1
             break
 
+    if history_sheet_name == "A_sess":
+        start_col = 9
+        end_col = 11
+    else:
+        start_col = 7
+        end_col = 9
     backup_old_statuses_h_i = {
         "requests": [
             {
@@ -223,15 +245,15 @@ def backup_statuses(history_data,
                         "sheetId": history_sheet_id,
                         "startRowIndex": start_row,
                         "endRowIndex": end_row,
-                        "startColumnIndex": 7,  # столбец Н, по умолчанию 7
-                        "endColumnIndex": 9  # столбец I, по умолчанию 9
+                        "startColumnIndex": start_col,  # столбец Н, по умолчанию 7
+                        "endColumnIndex": end_col  # столбец I, по умолчанию 9
                     },
                     "destination": {
                         "sheetId": history_sheet_id,
                         "startRowIndex": start_row,
                         "endRowIndex": end_row,
-                        "startColumnIndex": 7,  # столбец Н, по умолчанию 7
-                        "endColumnIndex": 9  # столбец I, по умолчанию 9
+                        "startColumnIndex": start_col,  # столбец Н, по умолчанию 7
+                        "endColumnIndex": end_col  # столбец I, по умолчанию 9
                     },
                     "pasteType": "PASTE_VALUES",  # вставляем как значения, бэкапим статусы через 5 дней
                     "pasteOrientation": "NORMAL"
@@ -284,7 +306,7 @@ def main():
     start_time = dt.datetime.utcnow() + dt.timedelta(hours=3)
     list_copying_results = []
     list_add_statuses = []
-    for i in range(0, 2):
+    for i in range(0, 3):
         try:
             result_backup_st = backup_statuses(
                 history_data=HISTORY["history_data"][i],

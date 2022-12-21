@@ -141,16 +141,26 @@ def add_statuses_as_formula(data: dict):
     formulas_h_column = []
     formulas_i_column = []
     for num_row in range(nums_cells[0], nums_cells[1] + 1):
-        if data["name"] == "s7d" or data["name"] == "step 2-3" or data["name"] == "abandoned":
+        if data["name"] == "s7d" or data["name"] == "step 2-3":
             formulas_h_column.append([f'=ЕСЛИОШИБКА(ВПР(C{num_row};draft_auto!$A:$C;2;0);"")'])
             formulas_i_column.append([f'=ЕСЛИОШИБКА(ВПР(C{num_row};draft_auto!$A:$C;3;0);"")'])
+        elif data["name"] == "abandoned":
+            formulas_h_column.append([f'=ЕСЛИОШИБКА(ВПР(A{num_row};draft_auto!$A:$C;2;0);"")'])
+            formulas_i_column.append([f'=ЕСЛИОШИБКА(ВПР(A{num_row};draft_auto!$A:$C;3;0);"")'])
         else:
             formulas_h_column.append([f'=ЕСЛИОШИБКА(ВПР(D{num_row};draft_auto!$E:$G;2;0);"")'])
             formulas_i_column.append([f'=ЕСЛИОШИБКА(ВПР(D{num_row};draft_auto!$E:$G;3;0);"")'])
 
-    info_for_writing = [{"range_for_writing": f"{sheet_name}!H{nums_cells[0]}:H{nums_cells[1]}",
+    if sheet_name == "A_sess":
+        col_1 = "J"
+        col_2 = "K"
+    else:
+        col_1 = "H"
+        col_2 = "I"
+
+    info_for_writing = [{"range_for_writing": f"{sheet_name}!{col_1}{nums_cells[0]}:{col_1}{nums_cells[1]}",
                          "body": {"values": formulas_h_column}},
-                        {"range_for_writing": f"{sheet_name}!I{nums_cells[0]}:I{nums_cells[1]}",
+                        {"range_for_writing": f"{sheet_name}!{col_2}{nums_cells[0]}:{col_2}{nums_cells[1]}",
                          "body": {"values": formulas_i_column}}]
     result = []
     for column in info_for_writing:
@@ -343,7 +353,7 @@ def main():
             list_copying_results.append(result_copying_2)
 
     for result in list_copying_results:
-        if result["result"] == "true" and result["func"] == "copied" and result["name"] != "abandoned":
+        if result["result"] == "true" and result["func"] == "copied":
             try:
                 result_add_status = add_statuses_as_formula(result)
             except Exception as exc_2:

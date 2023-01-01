@@ -36,3 +36,8 @@ class ApiGoogle:
         result = self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheet_id, body=body)
         response = result.execute()
         return response
+
+    def batch_update(self, body):
+        result = self.service.spreadsheets().values().batchUpdate(spreadsheetId=self.spreadsheet_id, body=body)
+        response = result.execute()
+        return response

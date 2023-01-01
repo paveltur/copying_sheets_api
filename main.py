@@ -312,6 +312,54 @@ def send_report(list_copying_results, list_add_statuses, start_time, end_time, m
                             msg=f"Subject:Data update report\n\n{message}")
 
 
+def checking_changes(
+        name: str,
+        call_list: str,
+        history_data: str,
+        history_sheet_name: str):
+    days_for_change = 3
+    list_of_dates = [(dt.datetime.now() - dt.timedelta(hours=(i*24)+12)).strftime("%Y-%m-%d")
+                     for i in range(1, days_for_change + 1)]
+    global range_for_copy
+    called_row = 11
+    dates_column = 5
+    not_called_row = 6
+    column_start_upd = "L"
+    if name == "abandoned":
+        range_for_copy = range_for_copy_abandoned
+        called_row = 17
+        dates_column = 14
+        not_called_row = 1
+        column_start_upd = "R"
+
+    data_h = ApiGoogle(history_data, [f"{history_sheet_name}!{range_for_copy}"]).read_data_ranges()
+    data_1 = ApiGoogle(call_list, [f"{name}!{range_for_copy}"]).read_data_ranges()
+
+    new_data_h = []
+    for row in enumerate(data_h["valueRanges"][0]["values"]):
+        if row[1][dates_column].split(" ")[0] in list_of_dates and len(row[1]) > not_called_row:
+            num_row = row[0] + 2
+            new_data_h.append([num_row, row[1]])
+
+    new_data_1 = [row for row in data_1["valueRanges"][0]["values"]
+                  if row[dates_column].split(" ")[0] in list_of_dates and len(row) > called_row]
+
+    data_writing = []
+    for row in new_data_1:
+        for line in new_data_h:
+            if row[:not_called_row] == line[1][:not_called_row] and row[called_row:] != line[1][called_row:]:
+                data_writing.append(
+                    {"range": f"{history_sheet_name}!{column_start_upd}{line[0]}",
+                     "majorDimension": "ROWS",
+                     "values": [row[called_row:]]}
+                )
+
+    batch_update_values_request_body = {'valueInputOption': 'USER_ENTERED', 'data': data_writing}
+    # print(batch_update_values_request_body)
+
+    return ApiGoogle(history_data).batch_update(body=batch_update_values_request_body)
+
+
 def main():
     start_time = dt.datetime.utcnow() + dt.timedelta(hours=3)
     list_copying_results = []
@@ -363,6 +411,20 @@ def main():
     end_time = dt.datetime.utcnow() + dt.timedelta(hours=3)
 
     send_report(list_copying_results, list_add_statuses, start_time, end_time, MY_EMAIL, PASSWORD, TO_EMAILS)
+
+    for call in CALLS:
+        try:
+            i = 0
+            if call["name"] == "abandoned":
+                i = 2
+            checking_changes(
+                name=call["name"],
+                call_list=call["call_list"],
+                history_data=HISTORY["history_data"][i],
+                history_sheet_name=HISTORY["history_sheet_name"][i]
+            )
+        except Exception:
+            continue
 
 
 if __name__ == "__main__":

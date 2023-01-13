@@ -65,7 +65,7 @@ def copying_main_data(name: str,
     elif name == "step 2-3":
         check_column = 2
         list_of_rows = []
-        if history_sheet_name == "Q4_22":
+        if history_sheet_name == "Q1_23":
             for row in data_2["valueRanges"][0]["values"]:
                 try:
                     if row[0] == "step 2-3" and row[12]:
@@ -174,7 +174,7 @@ def add_statuses_as_formula(data: dict):
 def check_backup_statuses(history_data, history_sheet_name, start_row, end_row, date_backup_statuses):
 
     calls_info = []
-    if history_sheet_name == "Q4_22":
+    if history_sheet_name == "Q1_23":
         data_stat_value = ApiGoogle(history_data,
                                     [f"{history_sheet_name}!A{start_row + 1}:I{end_row}"]).read_data_ranges()
         list_of_name_phone_calls = [call["name"] for call in CALLS][:-1]

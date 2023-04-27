@@ -8,9 +8,9 @@ columns_ad = "A2:D"
 columns_cd = "C2:D"
 column_m = "M2:M"
 date_column = "G2:G"
-date_column_abandoned = "O2:O"
+date_column_abandoned = "P2:P"
 range_for_copy = "A2:U"
-range_for_copy_abandoned = "A2:AB"
+range_for_copy_abandoned = "A2:AС"
 DAYS = 5
 
 with open("creds_sheets.json", "r") as f:
@@ -65,7 +65,7 @@ def copying_main_data(name: str,
     elif name == "step 2-3":
         check_column = 2
         list_of_rows = []
-        if history_sheet_name == "Q1_23":
+        if history_sheet_name == "Q2_23":
             for row in data_2["valueRanges"][0]["values"]:
                 try:
                     if row[0] == "step 2-3" and row[12]:
@@ -174,7 +174,7 @@ def add_statuses_as_formula(data: dict):
 def check_backup_statuses(history_data, history_sheet_name, start_row, end_row, date_backup_statuses):
 
     calls_info = []
-    if history_sheet_name == "Q1_23":
+    if history_sheet_name == "Q2_23":
         data_stat_value = ApiGoogle(history_data,
                                     [f"{history_sheet_name}!A{start_row + 1}:I{end_row}"]).read_data_ranges()
         list_of_name_phone_calls = [call["name"] for call in CALLS][:-1]
@@ -327,10 +327,10 @@ def checking_changes(
     column_start_upd = "L"
     if name == "abandoned":
         range_for_copy = range_for_copy_abandoned
-        called_row = 17
-        dates_column = 14
+        called_row = 18
+        dates_column = 15
         not_called_row = 1
-        column_start_upd = "R"
+        column_start_upd = "S"
 
     data_h = ApiGoogle(history_data, [f"{history_sheet_name}!{range_for_copy}"]).read_data_ranges()
     data_1 = ApiGoogle(call_list, [f"{name}!{range_for_copy}"]).read_data_ranges()

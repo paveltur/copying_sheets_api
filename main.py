@@ -10,7 +10,7 @@ column_m = "M2:M"
 date_column = "G2:G"
 date_column_abandoned = "P2:P"
 range_for_copy = "A2:U"
-range_for_copy_abandoned = "A2:AС"
+range_for_copy_abandoned = "A2:AC"
 DAYS = 5
 
 with open("creds_sheets.json", "r") as f:
@@ -39,7 +39,7 @@ def copying_main_data(name: str,
 
     data_1 = ApiGoogle(history_data, f"{history_sheet_name}!{columns_ad}").read_data_ranges()
 
-    data_2 = ApiGoogle(call_list, [f"{name}!{range_for_copy}{num_rows + 1}"]).read_data_ranges()
+    data_2 = ApiGoogle(call_list, f"{name}!{range_for_copy}{num_rows + 1}").read_data_ranges()
     # забираем весь диапазон листа обзвона для копирования (прим. листы периодически очищаются для быстроты загрузки,
     # поэтому забираем диапазон полностью)
 

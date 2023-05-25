@@ -10,7 +10,7 @@ column_m = "M2:M"
 date_column = "G2:G"
 date_column_abandoned = "P2:P"
 range_for_copy = "A2:U"
-range_for_copy_abandoned = "A2:AС"
+range_for_copy_abandoned = "A2:AE"
 DAYS = 5
 
 with open("creds_sheets.json", "r") as f:
